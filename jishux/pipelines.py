@@ -318,7 +318,7 @@ class JishuxMysqlPipeline(object):
                 self.cursor.execute(sql_insert_tag_list)
             self.connection.commit()
             # 本篇文章的url
-            url = 'http://www.jishux.com/plus/view-{}-1.html'.format(aid)
+            url = 'https://www.jishux.com/plus/view-{}-1.html'.format(aid)
             self.urls.append(url)
         except:
             # rollback: 数据库里做修改后(update,insert, delete)未commit 之前   使用rollback   可以恢复数据到修改之前
