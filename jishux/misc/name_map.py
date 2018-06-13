@@ -7,15 +7,16 @@ from .name_map_params import *
 
 common_map = {
     # ********** news list ***********
-    'http://mobile.51cto.com/': {
-        'url': {
-            'http://mobile.51cto.com': 'mobile',
-        },
-        'cn_name': '51CTO',
-        'posts_xpath': '//div[@class="home-left-list"]//li',
-        'post_url_xpath': 'div[@class="rinfo"]/a/@href',
-        'post_title_xpath': 'div[@class="rinfo"]/a/text()',
-    },
+    # 'http://mobile.51cto.com/': {
+    #     'url': {
+    #         'http://mobile.51cto.com': 'mobile',
+    #         # 'http://blog.51cto.com/dingbo/p1': 'mobile',
+    #     },
+    #     'cn_name': '51CTO',
+    #     'posts_xpath': '//div[@class="home-left-list"]//li',
+    #     'post_url_xpath': 'div[@class="rinfo"]/a/@href',
+    #     'post_title_xpath': 'div[@class="rinfo"]/a/text()',
+    # },
 
     # 'http://blog.51cto.com/': {
     #     'url': blog_51cto_urls,
@@ -471,7 +472,6 @@ common_map = {
             'xpath': '//*[@class="next-page"]/a/@href',
         },
     },
-
 
     # 'https://www.ibm.com/': {
     #     'url': {

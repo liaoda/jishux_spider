@@ -70,3 +70,4 @@ images/
 
 #secret file
 all_secret_set.py
+/test

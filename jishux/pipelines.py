@@ -6,20 +6,20 @@ import logging
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import random
-from urllib.parse import urljoin, urlparse, urlsplit
+from urllib.parse import urljoin, urlparse
 
 import pymysql
+import requests
 from scrapy import Selector, Request
 from scrapy.pipelines.images import FilesPipeline, FileException
 from scrapy.utils.request import referer_str
 
 import jishux.settings as settings
 from jishux.misc.all_secret_set import mysql_config
-from jishux.misc.qiniu_tools import upload_file as qiniu_upload,deleteFiles
+from jishux.misc.qiniu_tools import upload_file as qiniu_upload, deleteFiles
 from .misc.clean_tools import clean_tags
 from .misc.utils import get_post_type_id
 from .misc.utils import get_updated_count
-from .misc.mail_tools import sendmail
 from jishux.misc.baidu_push_urls_tools import baidu_push_urls
 from scrapy.utils.python import to_bytes
 
@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class JishuxPipeline(object):
+
     def process_item(self, item, spider):
         return item
 
@@ -128,9 +129,8 @@ class JISHUXFilePipeline(FilesPipeline):
         request_url = qiniu_upload(local_path, local_path.split('/')[-1])
         return {'url': request.url, 'path': path, 'checksum': checksum, 'qiniu_url': request_url}
 
-
     def file_path(self, request, response=None, info=None):
-        ## start of deprecation warning block (can be removed in the future)
+        # start of deprecation warning block (can be removed in the future)
         def _warn():
             from scrapy.exceptions import ScrapyDeprecationWarning
             import warnings
@@ -149,12 +149,11 @@ class JISHUXFilePipeline(FilesPipeline):
         if not hasattr(self.file_key, '_base'):
             _warn()
             return self.file_key(url)
-        ## end of deprecation warning block
+        # end of deprecation warning block
 
         media_guid = hashlib.sha1(to_bytes(url)).hexdigest()  # change to request.url after deprecation
         media_ext = os.path.splitext(url)[1].split('?')[0]  # change to request.url after deprecation
         return 'full/%s%s' % (media_guid, media_ext)
-
 
     def item_completed(self, results, item, info):
         item['litpic'] = ''
@@ -164,7 +163,7 @@ class JISHUXFilePipeline(FilesPipeline):
                 # 上传
                 # local_path = settings.FILES_STORE + x[1]['path']
                 # qiniu_url = qiniu_upload(local_path, local_path.split('/')[-1])
-                qiniu_url = x[1]['qiniu_url'] if  'qiniu_url' in x[1].keys() else None
+                qiniu_url = x[1]['qiniu_url'] if 'qiniu_url' in x[1].keys() else None
                 if qiniu_url:
                     qiniu_urls.append(qiniu_url)
                     # 文章封面图 litpic
@@ -215,6 +214,40 @@ class JISHUXFilePipeline(FilesPipeline):
         return item
 
 
+class JishuxPostArticle(object):
+
+    def __init__(self) -> None:
+        super().__init__()
+        f = open('jishux/misc/user_ids.txt', 'r+')
+        self.ids = [x.replace('\n', '') for x in f.readlines()]
+
+    def process_item(self, item, spider):
+        if item:
+            description = item['description'].replace(r'\"', r'\\"').replace('"', r'\"') if item['description'] else ''
+            description = html.escape(description)
+            content = item['content_html'].replace(r'\"', r'\\"').replace('"', r'\"') if item['content_html'] else ''
+            title = item['post_title'].replace(r'\"', r'\\"').replace('"', r'\"') if item['post_title'] else ''
+            title = html.escape(title)
+            source = item['cn_name']
+            author = '技术栈' if not item['author'] else item['author']
+
+            form = {
+                'keywords': item['keywords'],
+                'description': description,
+                'content': content,
+                'title': title,
+                'source': source,
+                'type_id': get_post_type_id(item['post_type']),
+                'author': author,
+                'user_id': random.choice(self.ids),
+                'created_at': str(item['crawl_time'])
+            }
+            r = requests.post('http://172.17.240.1/api/post/transport', data=form,
+                              headers={'id': 'a0dfi23u0fj0ewf0we230jfwfj0'})
+            if r.status_code != 200:
+                logging.log(logging.ERROR, '文章提交失败')
+
+
 class JishuxMysqlPipeline(object):
     def __init__(self):
         # 创建连接git l
@@ -225,7 +258,9 @@ class JishuxMysqlPipeline(object):
     def process_item(self, item, spider):
 
         if item:
-            self.insert_item(item)
+            print(item)
+            pass
+            # self.insert_item(item)
         return item
 
     def insert_item(self, item):
@@ -239,7 +274,7 @@ class JishuxMysqlPipeline(object):
             source = item['cn_name']
             article_type = 'p' if len(item['image_urls']) > 0 else ''
             author = '技术栈' if not item['author'] else item['author']
-            litpic = item['litpic'] if item['litpic']else ''
+            litpic = item['litpic'] if item['litpic'] else ''
             type_id = get_post_type_id(item['post_type'])
             crawl_time = str(item['crawl_time'])
             sql_insert_meta = 'INSERT INTO dede_archives (typeid, sortrank, flag, ismake, channel, title, writer, source, pubdate, senddate, mid, keywords, description, dutyadmin,voteid,litpic,click) VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s","%s","%s","%s")' % (
@@ -289,7 +324,6 @@ class JishuxMysqlPipeline(object):
             # rollback: 数据库里做修改后(update,insert, delete)未commit 之前   使用rollback   可以恢复数据到修改之前
             self.connection.rollback()
             deleteFiles(item['qiniu_urls'])
-
 
     def close_spider(self, spider):
         # 更新统计数据包括：当日更新文档数量，文章总数量，评论总数量

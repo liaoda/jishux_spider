@@ -8,15 +8,17 @@ import time
 import scrapy
 from scrapy import Selector
 
-from ..items import JishuxItem
-from ..misc.readability_tools import get_summary
-from ..misc.request_tools import next_page
-from ..misc.sqlite_tools import get_then_change_latest_url
-from ..misc.text_tools import get_description, get_keywords
-from ..misc.time_formater import generate_timestamp
-from ..misc.utils import get_conf, get_cookies, get_start_urls, md5
+from jishux.items import JishuxItem
+from jishux.misc.readability_tools import get_summary
+from jishux.misc.request_tools import next_page
+from jishux.misc.sqlite_tools import get_then_change_latest_url
+from jishux.misc.text_tools import get_description, get_keywords
+from jishux.misc.time_formater import generate_timestamp
+from jishux.misc.utils import get_conf, get_cookies, get_start_urls, md5
 
 logger = logging.getLogger(__name__)
+
+
 class CommonSpider(scrapy.Spider):
     name = 'common_spider'
     start_urls = get_start_urls()
@@ -25,7 +27,8 @@ class CommonSpider(scrapy.Spider):
         'ITEM_PIPELINES': {
             'jishux.pipelines.JishuxDataCleaningPipeline': 300,
             'jishux.pipelines.JISHUXFilePipeline': 400,
-            'jishux.pipelines.JishuxMysqlPipeline': 500,
+            # 'jishux.pipelines.JishuxMysqlPipeline': 500,
+            'jishux.pipelines.JishuxPostArticle': 500
         },
         'DOWNLOADER_MIDDLEWARES': {
             'jishux.middlewares.JishuxDownloaderMiddleware': 543,
@@ -45,8 +48,9 @@ class CommonSpider(scrapy.Spider):
         latest_url = response.meta['latest_url'] if 'latest_url' in response.meta.keys() else None
         # 本次请求的url
         request_url = response.meta['request_url']
-        conf = response.meta['conf'] if 'conf' in response.meta.keys() else get_conf(url=request_url)
-        post_type = response.meta['post_type'] if 'post_type' in response.meta.keys() else conf['url'][request_url]
+        conf = response.meta['conf'] if response.meta and 'conf' in response.meta.keys() else get_conf(url=request_url)
+        post_type = response.meta['post_type'] if response.meta and 'post_type' in response.meta.keys() else \
+            conf['url'][request_url]
         posts = response.xpath(conf['posts_xpath'])
         for post in posts:
             post_url = post.xpath(conf['post_url_xpath']).extract_first()
@@ -92,7 +96,7 @@ class CommonSpider(scrapy.Spider):
         item['post_type'] = response.meta['item']['post_type']
         conf = response.meta['conf']
         post_time = re.search(
-            '(20\d{2}([\.\-/|年月\s]{1,3}\d{1,2}){2}日?(\s\d{2}:\d{2}(:\d{2})?)?)|(\d{1,2}\s?(分钟|小时|天)前)',
+            '(20\d{2}([.\-/|年月\s]{1,3}\d{1,2}){2}日?(\s\d{2}:\d{2}(:\d{2})?)?)|(\d{1,2}\s?(分钟|小时|天)前)',
             response.text)
         if post_time:
             crawl_time = generate_timestamp(post_time.group())

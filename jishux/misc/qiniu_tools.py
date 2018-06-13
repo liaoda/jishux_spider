@@ -3,6 +3,7 @@
 import time
 from jishux.misc.all_secret_set import qiniu_config
 from qiniu import Auth, put_file, etag, BucketManager
+from logging import log, ERROR
 
 access_key = qiniu_config['access_key']
 secret_key = qiniu_config['secret_key']
@@ -10,6 +11,7 @@ bucket_name = qiniu_config['bucket_name']
 image_domain = qiniu_config['image_domain']
 suffix = qiniu_config['suffix']
 q = Auth(access_key, secret_key)
+bucket = BucketManager(q)
 
 
 def upload_file(file_path, file_name):
@@ -26,17 +28,22 @@ def upload_file(file_path, file_name):
     return image_domain + file_name + suffix
 
 
-bucket = BucketManager(q)
+# def isFileExist(file_name):
+#     # 初始化BucketManager
+#
+#     # 你要测试的空间， 并且这个key在你空间中存在
+#     # 获取文件的状态信息
+#
+#     ret, info = bucket.stat(bucket_name, file_name)
+#     return True if info.status_code == 200 else False
 
+def fetch_url_file(url, filename):
+    ret, info = bucket.fetch(url, bucket_name, filename)
+    if info.exception:
+        log(ERROR, info.exception)
+        return
 
-def isFileExist(file_name):
-    # 初始化BucketManager
-
-    # 你要测试的空间， 并且这个key在你空间中存在
-    # 获取文件的状态信息
-
-    ret, info = bucket.stat(bucket_name, file_name)
-    return True if info.status_code == 200 else False
+    return image_domain + filename + suffix
 
 
 def deleteFiles(qiniu_urls):

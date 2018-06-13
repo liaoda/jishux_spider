@@ -15,16 +15,17 @@ def get_post_type_id(post_type):
         return 2
 
     type_map = {
-        'news': 2,
-        'bigdata': 5,
-        'mobile': 24,
-        'ai': 10,
-        'db': 11,
-        'other': 12,
-        'network': 13,
-        'os': 14,
-        'frontend': 19,
-        'backend': 20,
+        'news': 1,
+        'bigdata': 2,
+        'network': 3,
+        'os': 4,
+        'db': 5,
+        'frontend': 6,
+        'mobile': 8,
+        'backend': 7,
+        'ai': 9,
+        'other': 10,
+
     }
     return type_map[post_type] if post_type in type_map.keys() else 2
 
@@ -48,7 +49,8 @@ def get_one_site_start_urls(host):
         base_url = "{0.scheme}://{0.netloc}/".format(urlsplit(url))
         if url in common_map.keys() or url[:-1] in common_map.keys() or (url + '/') in common_map.keys():
             start_urls += (list(common_map[url]['url'].keys()))
-        elif base_url in common_map.keys() or base_url[:-1] in common_map.keys() or (base_url + '/') in common_map.keys():
+        elif base_url in common_map.keys() or base_url[:-1] in common_map.keys() or (
+                base_url + '/') in common_map.keys():
             start_urls.append(url)
     return list(set(start_urls))
 
@@ -99,6 +101,7 @@ def get_updated_count(connection, cursor):
     total = cursor.fetchone()
     total = total['total'] if total else 0
     comments = int(day_updated / 4 + random.randrange(3))
-    sql = 'UPDATE dede_updated_count SET day_updated_count = "{}", total_count = "{}", comment_count = "{}" WHERE id = 1'.format(day_updated, total, comments)
+    sql = 'UPDATE dede_updated_count SET day_updated_count = "{}", total_count = "{}", comment_count = "{}" WHERE id = 1'.format(
+        day_updated, total, comments)
     cursor.execute(sql)
     connection.commit()
