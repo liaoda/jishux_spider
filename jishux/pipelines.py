@@ -8,19 +8,15 @@ import logging
 import random
 from urllib.parse import urljoin, urlparse
 
-import pymysql
 import requests
 from scrapy import Selector, Request
 from scrapy.pipelines.images import FilesPipeline, FileException
 from scrapy.utils.request import referer_str
 
 import jishux.settings as settings
-from jishux.misc.all_secret_set import mysql_config
-from jishux.misc.qiniu_tools import upload_file as qiniu_upload, deleteFiles
+from jishux.misc.qiniu_tools import upload_file as qiniu_upload
 from .misc.clean_tools import clean_tags
 from .misc.utils import get_post_type_id
-from .misc.utils import get_updated_count
-from jishux.misc.baidu_push_urls_tools import baidu_push_urls
 from scrapy.utils.python import to_bytes
 
 import hashlib
@@ -240,97 +236,10 @@ class JishuxPostArticle(object):
                 'type_id': get_post_type_id(item['post_type']),
                 'author': author,
                 'user_id': random.choice(self.ids),
-                'created_at': str(item['crawl_time'])
+                'created_at': str(item['crawl_time']),
+                'origin_url': item.get('_id')
             }
-            r = requests.post('http://172.17.240.1/api/post/transport', data=form,
+            r = requests.post('http://127.0.0.1/api/post/transport', data=form,
                               headers={'id': 'a0dfi23u0fj0ewf0we230jfwfj0'})
             if r.status_code != 200:
                 logging.log(logging.ERROR, '文章提交失败')
-
-
-class JishuxMysqlPipeline(object):
-    def __init__(self):
-        # 创建连接git l
-        self.connection = pymysql.connect(**mysql_config)
-        self.cursor = self.connection.cursor()
-        self.urls = []
-
-    def process_item(self, item, spider):
-
-        if item:
-            print(item)
-            pass
-            # self.insert_item(item)
-        return item
-
-    def insert_item(self, item):
-        try:
-            keywords = item['keywords']
-            description = item['description'].replace(r'\"', r'\\"').replace('"', r'\"') if item['description'] else ''
-            description = html.escape(description)
-            content = item['content_html'].replace(r'\"', r'\\"').replace('"', r'\"') if item['content_html'] else ''
-            title = item['post_title'].replace(r'\"', r'\\"').replace('"', r'\"') if item['post_title'] else ''
-            title = html.escape(title)
-            source = item['cn_name']
-            article_type = 'p' if len(item['image_urls']) > 0 else ''
-            author = '技术栈' if not item['author'] else item['author']
-            litpic = item['litpic'] if item['litpic'] else ''
-            type_id = get_post_type_id(item['post_type'])
-            crawl_time = str(item['crawl_time'])
-            sql_insert_meta = 'INSERT INTO dede_archives (typeid, sortrank, flag, ismake, channel, title, writer, source, pubdate, senddate, mid, keywords, description, dutyadmin,voteid,litpic,click) VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s","%s","%s","%s")' % (
-                type_id, crawl_time, article_type, -1, 1, title, author, source, crawl_time, crawl_time,
-                1, keywords, description, 1, 0, litpic, 0)
-            self.cursor.execute(sql_insert_meta)
-            sql_last_id = 'SELECT LAST_INSERT_ID()'
-            self.cursor.execute(sql_last_id)
-            a = self.cursor.fetchone()
-            aid = a['LAST_INSERT_ID()']
-            sql_insert_content = 'INSERT INTO dede_addonarticle (aid, typeid, body, userip) VALUES("%s","%s","%s","%s")' % (
-                aid, type_id, content, '127.0.0.1')
-            # print(sql_insert_content)
-            self.cursor.execute(sql_insert_content)
-            sql_insert_arctiny = 'INSERT INTO dede_arctiny (id, typeid, channel, senddate, sortrank,mid) VALUES ("%s", "%s", "%s", "%s", "%s", "%s")' % (
-                aid, type_id, 1, crawl_time, crawl_time, 1)
-            self.cursor.execute(sql_insert_arctiny)
-            for key in keywords.split(','):
-                # 判断tag是否在tagindex中存在
-                sql_find_tag_exist = 'SELECT * FROM dede_tagindex WHERE tag= "%s"' % key
-                # 如果不存在插入tag_index '" + key + "'," + type_id + ",1," + crawl_time + "," + crawl_time + "," + crawl_time + "
-                sql_insert_tag_index = 'INSERT INTO dede_tagindex (tag, typeid, total, weekup, monthup, addtime) VALUES ("%s","%s","%s","%s","%s","%s")' % (
-                    key, type_id, 1, crawl_time, crawl_time, crawl_time)
-                # 如果存在则计数+1
-                sql_update_count_add_1 = 'UPDATE dede_tagindex SET total=total+1  WHERE tag= "%s"' % key
-                self.cursor.execute(sql_find_tag_exist)
-                one = self.cursor.fetchone()
-
-                if one:
-                    self.cursor.execute(sql_update_count_add_1)
-                    tid = one['id']
-                else:
-                    self.cursor.execute(sql_insert_tag_index)
-                    self.cursor.execute(sql_last_id)
-                    last = self.cursor.fetchone()
-                    tid = last['LAST_INSERT_ID()']
-                # 插入tag到taglist
-                sql_insert_tag_list = 'INSERT INTO dede_taglist (tid, aid, arcrank, typeid, tag) VALUES ("%s", "%s", "%s", "%s", "%s")' % (
-                    str(tid), str(aid), 0, str(type_id), key)
-                # print(sql_insert_tag_list)
-                self.cursor.execute(sql_insert_tag_list)
-            self.connection.commit()
-            # 本篇文章的url
-            url = 'https://www.jishux.com/plus/view-{}-1.html'.format(aid)
-            self.urls.append(url)
-        except:
-            # rollback: 数据库里做修改后(update,insert, delete)未commit 之前   使用rollback   可以恢复数据到修改之前
-            self.connection.rollback()
-            deleteFiles(item['qiniu_urls'])
-
-    def close_spider(self, spider):
-        # 更新统计数据包括：当日更新文档数量，文章总数量，评论总数量
-        get_updated_count(connection=self.connection, cursor=self.cursor)
-        # 把新抓取的文章链接推送到百度站长
-        msg = baidu_push_urls(urls=self.urls)
-        print(msg)
-        # 关闭数据库链接
-        self.cursor.close()
-        self.connection.close()
