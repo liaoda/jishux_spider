@@ -159,8 +159,6 @@ class JISHUXFilePipeline(FilesPipeline):
         for x in results:
             if x[0]:
                 # 上传
-                # local_path = settings.FILES_STORE + x[1]['path']
-                # qiniu_url = qiniu_upload(local_path, local_path.split('/')[-1])
                 qiniu_url = x[1]['qiniu_url'] if 'qiniu_url' in x[1].keys() else None
                 if qiniu_url:
                     qiniu_urls.append(qiniu_url)
@@ -220,13 +218,14 @@ class JishuxPostArticle(object):
         self.page_all = 'page_all' in start_urls_config and start_urls_config['page_all']
         f = open('jishux/misc/user_ids.txt', 'r+')
         self.ids = [x.replace('\n', '') for x in f.readlines()]
+        f.close()
 
     def process_item(self, item, spider):
         if item:
-            description = item['description'].replace(r'\"', r'\\"').replace('"', r'\"') if item['description'] else ''
+            description = item['description']
             description = html.escape(description)
-            content = item['content_html'].replace(r'\"', r'\\"').replace('"', r'\"') if item['content_html'] else ''
-            title = item['post_title'].replace(r'\"', r'\\"').replace('"', r'\"') if item['post_title'] else ''
+            content = item['content_html']
+            title = item['post_title']
             title = html.escape(title)
             source = item['cn_name']
             author = '技术栈' if not item['author'] else item['author']
