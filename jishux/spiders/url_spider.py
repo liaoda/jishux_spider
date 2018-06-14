@@ -24,7 +24,6 @@ class UrlSpider(scrapy.Spider):
         }
     }
 
-
     def parse(self, response):
         # 本次最新的文章的url
         first_url = response.meta['first_url'] if 'first_url' in response.meta.keys() else None
