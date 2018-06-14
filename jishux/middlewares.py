@@ -5,13 +5,9 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-import random
 
 from scrapy import signals
-
-from jishux.misc.all_secret_set import setProxyAuth
 import user_agent
-
 
 
 class JishuxSpiderMiddleware(object):
@@ -71,8 +67,8 @@ class JishuxDownloaderMiddleware(object):
         ua = user_agent.generate_user_agent(device_type='desktop')
         request.headers['User-Agent'] = ua
         # if 'Accept' in request.headers:
-            # accept = request.headers['Accept'].decode('utf-8')
-            # if accept and accept.find('text/html') != -1:
-            #     setProxyAuth(request)
+        # accept = request.headers['Accept'].decode('utf-8')
+        # if accept and accept.find('text/html') != -1:
+        #     setProxyAuth(request)
         # else:
         #     print("jishux_header:", request.headers)
