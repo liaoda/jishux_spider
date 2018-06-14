@@ -70,9 +70,9 @@ class JishuxDownloaderMiddleware(object):
     def process_request(self, request, spider):
         ua = user_agent.generate_user_agent(device_type='desktop')
         request.headers['User-Agent'] = ua
-        if 'Accept' in request.headers:
-            accept = request.headers['Accept'].decode('utf-8')
-            if accept and accept.find('text/html') != -1:
-                setProxyAuth(request)
-        else:
-            print("jishux_header:", request.headers)
+        # if 'Accept' in request.headers:
+            # accept = request.headers['Accept'].decode('utf-8')
+            # if accept and accept.find('text/html') != -1:
+            #     setProxyAuth(request)
+        # else:
+        #     print("jishux_header:", request.headers)
