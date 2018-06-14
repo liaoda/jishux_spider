@@ -240,7 +240,8 @@ class JishuxPostArticle(object):
                 'author': author,
                 'user_id': random.choice(self.ids),
                 'created_at': str(item['crawl_time']),
-                'origin_url': item.get('_id')
+                'origin_url': item.get('_id'),
+                'click': 0
             }
             r = requests.post('http://127.0.0.1/api/post/transport', data=form,
                               headers={'id': 'a0dfi23u0fj0ewf0we230jfwfj0'})
