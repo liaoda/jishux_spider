@@ -15,6 +15,7 @@ from jishux.misc.sqlite_tools import get_then_change_latest_url
 from jishux.misc.text_tools import get_description, get_keywords
 from jishux.misc.time_formater import generate_timestamp
 from jishux.misc.utils import get_conf, get_cookies, get_start_urls, md5
+from jishux.misc.all_secret_set import start_urls_config
 
 logger = logging.getLogger(__name__)
 
@@ -81,11 +82,12 @@ class CommonSpider(scrapy.Spider):
             request.meta['conf'] = conf
             yield request
 
-        # 翻页
-        request = next_page(callback=self.parse, response=response, conf=conf, first_url=first_url,
-                            latest_url=latest_url, post_type=post_type)
-        if request:
-            yield request
+        if 'first' not in start_urls_config or start_urls_config['page_all']:
+            # 翻页
+            request = next_page(callback=self.parse, response=response, conf=conf, first_url=first_url,
+                                latest_url=latest_url, post_type=post_type)
+            if request:
+                yield request
 
     def parse_post(self, response):
         crawl_time = None

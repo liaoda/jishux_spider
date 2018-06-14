@@ -14,14 +14,15 @@ from scrapy.pipelines.images import FilesPipeline, FileException
 from scrapy.utils.request import referer_str
 
 import jishux.settings as settings
+from jishux.misc.baidu_push_urls_tools import baidu_push_urls
+from jishux.misc.mail_tools import sendmail
 from jishux.misc.qiniu_tools import upload_file as qiniu_upload
 from .misc.clean_tools import clean_tags
 from .misc.utils import get_post_type_id
 from scrapy.utils.python import to_bytes
-
+from jishux.misc.all_secret_set import start_urls_config
 import hashlib
 import os
-import os.path
 import html
 
 logger = logging.getLogger(__name__)
@@ -214,6 +215,8 @@ class JishuxPostArticle(object):
 
     def __init__(self) -> None:
         super().__init__()
+        self.post_urls = []
+        self.page_all = 'page_all' in start_urls_config and start_urls_config['page_all']
         f = open('jishux/misc/user_ids.txt', 'r+')
         self.ids = [x.replace('\n', '') for x in f.readlines()]
 
@@ -243,3 +246,14 @@ class JishuxPostArticle(object):
                               headers={'id': 'a0dfi23u0fj0ewf0we230jfwfj0'})
             if r.status_code != 200:
                 logging.log(logging.ERROR, '文章提交失败')
+            else:
+                self.post_urls.append(r.text)
+
+    def close_spider(self, spider):
+        stats = spider.crawler.stats.get_stats()
+        stats_msg = str(stats).replace('{', '{\n    ').replace(', \'', ', \n    \'').replace('}', '\n}')
+        push_msg = baidu_push_urls(urls=self.post_urls) if not self.page_all else ''
+        msg = '全量爬取' if self.page_all else '增量爬取'
+        msg += '：本次爬取文章数: {}篇\n{}\n{}'.format(len(self.post_urls), push_msg, stats_msg)
+        sendmail(subject='爬取{}篇'.format(len(self.post_urls)), message=msg, file_path='/var/log/scrapy.log')
+        # 更新统计数据包括：当日更新文档数量，文章总数量，评论总数量

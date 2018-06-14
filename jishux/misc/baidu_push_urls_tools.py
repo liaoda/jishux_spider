@@ -5,6 +5,7 @@
 import requests
 from .all_secret_set import baidu_push_url
 
+
 def baidu_push_urls(urls):
     urls = ''.join([url + '\n' for url in urls])
     headers = {
@@ -17,7 +18,6 @@ def baidu_push_urls(urls):
             return '本次向百度推送成功：{}条'.format(response['success'])
         else:
             return '本次向百度推送失败: {}'.format(response)
-
 
 # for i in range(1, 301):
 #     urls = []
