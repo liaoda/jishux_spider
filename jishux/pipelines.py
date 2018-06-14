@@ -24,6 +24,7 @@ from jishux.misc.all_secret_set import start_urls_config
 import hashlib
 import os
 import html
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -239,7 +240,7 @@ class JishuxPostArticle(object):
                 'type_id': get_post_type_id(item['post_type']),
                 'author': author,
                 'user_id': random.choice(self.ids),
-                'created_at': str(item['crawl_time']),
+                'created_at': str(datetime.fromtimestamp(item['crawl_time'])),
                 'origin_url': item.get('_id'),
                 'click': 0
             }
