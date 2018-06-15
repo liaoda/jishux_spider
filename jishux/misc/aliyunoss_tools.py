@@ -41,7 +41,6 @@ def upload_file(local_file_name, yun_file_name):
     else:
         return None
 
-
 # print(upload_file('a.txt','aaaaaa.txt'))
 # # 删除名为motto.txt的Object
 # bucket.delete_object('motto.txt')

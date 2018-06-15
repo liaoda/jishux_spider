@@ -17,8 +17,8 @@ bucket = BucketManager(q)
 def upload_file(file_path, file_name):
     # print(file_path)
     # print(file_name)
-    date = time.strftime('%Y/%m/%d/', time.localtime(time.time()))
-    file_name = 'jishux/' + date + file_name
+    # date = time.strftime('%Y/%m/%d/', time.localtime(time.time()))
+    # file_name = 'jishux/' + date + file_name
 
     token = q.upload_token(bucket_name, file_name, 3600)
     ret, info = put_file(token, file_name, file_path)
