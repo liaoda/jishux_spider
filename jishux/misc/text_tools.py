@@ -3,6 +3,10 @@
 # Created by yaochao on 2017/8/13
 
 import jieba.analyse
+from jieba import analyse
+
+analyse.set_stop_words('jishux/misc/stop_words_chinese.txt')
+
 
 def get_description(content_text):
     if len(content_text) >= 100:
