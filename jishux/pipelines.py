@@ -239,8 +239,8 @@ class JishuxPostArticle(object):
                 'type_id': get_post_type_id(item['post_type']),
                 'author': author,
                 'user_id': random.choice(self.ids),
-                # 'created_at': str(datetime.fromtimestamp(item['crawl_time'])),
-                'created_at': str(datetime.now()),
+                'created_at': str(datetime.fromtimestamp(item['crawl_time'])),
+                # 'created_at': str(datetime.now()),
                 'origin_url': item.get('_id'),
                 'click': 0
             }
