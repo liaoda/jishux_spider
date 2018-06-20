@@ -249,6 +249,7 @@ class JishuxPostArticle(object):
             if r.status_code != 200:
                 logging.log(logging.ERROR, '文章提交失败')
             else:
+                print(r.text)
                 self.post_urls.append(r.text)
 
     def close_spider(self, spider):
