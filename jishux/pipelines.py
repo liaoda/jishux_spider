@@ -245,7 +245,7 @@ class JishuxPostArticle(object):
                 'click': 0
             }
             r = requests.post('http://127.0.0.1/api/post/transport', data=form,
-                              headers={'id': 'a0dfi23u0fj0ewf0we230jfwfj0'})
+                              headers={'auth': 'a0dfi23u0fj0ewf0we230jfwfj0'})
             if r.status_code != 200:
                 logging.log(logging.ERROR, '文章提交失败')
             else:
