@@ -42,7 +42,7 @@ def clean_tags(item):
     # 清除HTML多余的style scripts comments
     soup = BeautifulSoup(content_html, 'lxml')
     content_html = _remove_all_attrs_except_saving(soup)
-    content_html = str(content_html) # 把soup对象转为str
+    content_html = str(content_html)  # 把soup对象转为str
     # 赋值
     item['content_html'] = content_html
     return item
@@ -62,23 +62,27 @@ def _remove_all_attrs(soup):
         tag.attrs = {}
     return soup
 
+
 # remove all attributes except some tags
 def _remove_all_attrs_except(soup):
-    whitelist = ['a','img']
+    whitelist = ['a', 'img']
     for tag in soup.find_all(True):
         if tag.name not in whitelist:
             tag.attrs = {}
     return soup
 
+
 # remove all attributes except some tags(only saving ['href','src'] attr)
 def _remove_all_attrs_except_saving(soup):
-    whitelist = ['a','img']
+    whitelist = ['a', 'img']
     for tag in soup.find_all(True):
         if tag.name not in whitelist:
             tag.attrs = {}
         else:
             attrs = dict(tag.attrs)
             for attr in attrs:
-                if attr not in ['src','href']:
+                if attr in ['style', 'class', 'id']:
                     del tag.attrs[attr]
+                if tag.name == 'img':
+                    tag.attrs['class'] = 'lazyload'
     return soup
