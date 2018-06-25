@@ -138,6 +138,7 @@ common_map = {
         'posts_xpath': '//*[contains(@id,"note")]',
         'post_url_xpath': 'div/a[@class="title"]/@href',
         'post_title_xpath': 'div/a[@class="title"]/text()',
+        'post_content_xpath': '//*[@class="show-content"]',
         'headers': {
             "Accept-Encoding": "gzip, identity",
             "Accept-Language": "zh-CN,zh;q=0.8",

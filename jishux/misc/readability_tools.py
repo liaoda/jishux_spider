@@ -4,7 +4,9 @@
 
 from readability import Document
 
-def get_summary(content):
-    doc = Document(content)
+def get_summary(response, conf):
+    if 'post_content_xpath' in conf and conf['post_content_xpath']:
+        return response.xpath(conf['post_content_xpath']).extract_first(default='')
+    doc = Document(response.text)
     summary = doc.summary(html_partial=True)
     return summary
