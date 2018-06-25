@@ -42,6 +42,7 @@ def clean_tags(item):
     # 清除HTML多余的style scripts comments
     soup = BeautifulSoup(content_html, 'lxml')
     content_html = _remove_all_attrs_except_saving(soup)
+    content_html = str(content_html) # 把soup对象转为str
     # 赋值
     item['content_html'] = content_html
     return item
