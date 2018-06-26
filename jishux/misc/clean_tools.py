@@ -38,7 +38,8 @@ def clean_tags(item):
     src = content_selector.xpath('//img[1]/@src').extract()
     if (data_original and src) or (data_src and src):
         content_html = content_html.replace(' src=', ' src2=')
-    content_html = content_html.replace(' src=', ' data-src=').replace(' data-original=', ' data-src=').replace(' data-original=', ' data-src=')
+    content_html = content_html.replace(' src=', ' data-src=').replace(' data-original=', ' data-src=').replace(
+        ' data-original=', ' data-src=')
     # 清除HTML多余的style scripts comments
     soup = BeautifulSoup(content_html, 'lxml')
     content_html = _remove_all_attrs_except_saving(soup)
@@ -72,6 +73,20 @@ def _remove_all_attrs_except(soup):
     return soup
 
 
+# tag -> attr
+extra_tag_attr = {
+    'a': {
+        'target': '_blank'
+    },
+    'img': {
+        'class': 'lazyload'
+    },
+    'table': {
+        'class': 'table table-striped'
+    },
+}
+
+
 # remove all attributes except some tags(only saving ['href','src'] attr)
 def _remove_all_attrs_except_saving(soup):
     whitelist = ['a', 'img']
@@ -83,6 +98,8 @@ def _remove_all_attrs_except_saving(soup):
             for attr in attrs:
                 if attr in ['style', 'class', 'id']:
                     del tag.attrs[attr]
-                if tag.name == 'img':
-                    tag.attrs['class'] = 'lazyload'
+                if tag.name in extra_tag_attr:
+                    target_tag = extra_tag_attr.get(tag.name)
+                    for i in target_tag:
+                        tag.attrs[i] = target_tag.get(i)
     return soup
