@@ -4,6 +4,7 @@
 
 from readability import Document
 
+
 def get_summary(response, conf):
     if 'post_content_xpath' in conf and conf['post_content_xpath']:
         return response.xpath(conf['post_content_xpath']).extract_first(default='')

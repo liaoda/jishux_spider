@@ -239,8 +239,6 @@ class JishuxPostArticle(object):
                 'type_id': get_post_type_id(item['post_type']),
                 'author': author,
                 'user_id': random.choice(self.ids),
-                'created_at': str(datetime.fromtimestamp(item['crawl_time'])),
-                # 'created_at': str(datetime.now()),
                 'origin_url': item.get('_id'),
                 'click': 0
             }
@@ -253,6 +251,8 @@ class JishuxPostArticle(object):
                 self.post_urls.append(r.text)
 
     def close_spider(self, spider):
+        if start_urls_config.get('debug'):
+            return
         stats = spider.crawler.stats.get_stats()
         stats_msg = str(stats).replace('{', '{\n    ').replace(', \'', ', \n    \'').replace('}', '\n}')
         push_msg = baidu_push_urls(urls=self.post_urls) if not self.page_all else ''

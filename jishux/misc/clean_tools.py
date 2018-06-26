@@ -38,7 +38,7 @@ def clean_tags(item):
     src = content_selector.xpath('//img[1]/@src').extract()
     if (data_original and src) or (data_src and src):
         content_html = content_html.replace(' src=', ' src2=')
-    content_html = content_html.replace(' src=', ' data-src=').replace(' data-original=', ' data-src=')
+    content_html = content_html.replace(' src=', ' data-src=').replace(' data-original=', ' data-src=').replace(' data-original=', ' data-src=')
     # 清除HTML多余的style scripts comments
     soup = BeautifulSoup(content_html, 'lxml')
     content_html = _remove_all_attrs_except_saving(soup)

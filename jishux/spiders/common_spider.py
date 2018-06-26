@@ -97,11 +97,11 @@ class CommonSpider(scrapy.Spider):
         item['_id'] = response.meta['item']['_id']
         item['post_type'] = response.meta['item']['post_type']
         conf = response.meta['conf']
-        post_time = re.search(
-            '(20\d{2}([.\-/|年月\s]{1,3}\d{1,2}){2}日?(\s\d{2}:\d{2}(:\d{2})?)?)|(\d{1,2}\s?(分钟|小时|天)前)',
-            response.text)
-        if post_time:
-            crawl_time = generate_timestamp(post_time.group())
+        # post_time = re.search(
+        #     '(20\d{2}([.\-/|年月\s]{1,3}\d{1,2}){2}日?(\s\d{2}:\d{2}(:\d{2})?)?)|(\d{1,2}\s?(分钟|小时|天)前)',
+        #     response.text)
+        # if post_time:
+        #     crawl_time = generate_timestamp(post_time.group())
         content_html = get_summary(response, conf)
         content_text = Selector(text=content_html).xpath('string(.)').extract_first()
         content_text = content_text.strip().replace('\r', '').replace('\n', '').replace('\t', '')
@@ -113,4 +113,4 @@ class CommonSpider(scrapy.Spider):
         item['crawl_time'] = crawl_time if crawl_time else int(time.time())
         item['cn_name'] = conf['cn_name']
         item['author'] = ''  # todo 文章作者 配置文件需要适配
-        yield item
+        yield item if not start_urls_config.get('debug') else print(item)

@@ -299,6 +299,7 @@ common_map = {
             'https://www.oschina.net/news': 'news',
         },
         'cn_name': '开源中国',
+        'post_content_xpath': '//*[starts-with(@class,"editor-viewer")]|//*[@id="articleContent"]',
         'posts_xpath': '//*[@id="all-news"]/div',
         'post_url_xpath': 'div[1]/a/@href',
         'post_title_xpath': 'div[1]/a/span/text()',
