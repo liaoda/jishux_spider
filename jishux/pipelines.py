@@ -20,7 +20,7 @@ from jishux.misc.qiniu_tools import upload_file as qiniu_upload
 from .misc.clean_tools import clean_tags
 from .misc.utils import get_post_type_id
 from scrapy.utils.python import to_bytes
-from jishux.misc.all_secret_set import start_urls_config
+from jishux.misc.all_secret_set import start_urls_config, data_transport_token
 import hashlib
 import os
 import html
@@ -243,7 +243,7 @@ class JishuxPostArticle(object):
                 'click': 0
             }
             r = requests.post('http://127.0.0.1/api/post/transport', data=form,
-                              headers={'auth': 'a0dfi23u0fj0ewf0we230jfwfj0'})
+                              headers={'auth': data_transport_token})
             if r.status_code != 200:
                 logging.log(logging.ERROR, '文章提交失败')
             else:
