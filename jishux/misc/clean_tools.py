@@ -5,6 +5,10 @@ import re
 from urllib.parse import urlsplit
 from scrapy import Selector
 from bs4 import BeautifulSoup
+# 需要替换的img src属性
+img_lazy_src = [
+    'src', 'data-original', 'data-original-src='
+]
 
 
 def clean_tags(item):
@@ -38,8 +42,8 @@ def clean_tags(item):
     src = content_selector.xpath('//img[1]/@src').extract()
     if (data_original and src) or (data_src and src):
         content_html = content_html.replace(' src=', ' src2=')
-    content_html = content_html.replace(' src=', ' data-src=').replace(' data-original=', ' data-src=').replace(
-        ' data-original-src=', ' data-src=')
+    for lazy_src in img_lazy_src:
+        content_html = content_html.replace(' ' + lazy_src, ' data-src=')
     # 清除HTML多余的style scripts comments
     soup = BeautifulSoup(content_html, 'lxml')
     content_html = _remove_all_attrs_except_saving(soup)
