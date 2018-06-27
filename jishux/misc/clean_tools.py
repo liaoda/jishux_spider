@@ -2,14 +2,8 @@
 # -*- coding: utf-8 -*-
 # Created by yaochao on 2017/8/29
 import re
-from urllib.parse import urlsplit
 from scrapy import Selector
 from bs4 import BeautifulSoup
-
-# 需要替换的img src属性
-img_lazy_src = [
-    'src', 'data-original', 'data-original-src'
-]
 
 
 def clean_tags(item):
@@ -17,71 +11,23 @@ def clean_tags(item):
     加工标签
     '''
     content_html = item['content_html'].strip()
-    # nofollow
-    content_html = content_html.replace('<a', '<a rel="nofollow"')
-    # TODO 空白符的处理
-    # 1. 提取代码出来
-    # pres = re.findall(r'<pre.*?</pre>', content_html)
-    # for index, pre in enumerate(pres):
-    #     content_html = content_html.replace(pre, '<pre>' + str(index) + '</pre>')
-    # # 2. 去空白符
-    # content_html = content_html.strip().replace('\r', '').replace('\n', '').replace('\t', '')
-    # # 3. 代码还原回去
-    # for index, pre in enumerate(pres):
-    #     content_html = content_html.replace('<pre>' + str(index) + '</pre>', pre)
-    #
-    # p1 = re.compile('<p>(\s*|<br>|<br/>|&nbsp;)</p>')
-    # content_html = re.sub(p1, '', content_html)
     # 去掉标签和标签之间多余的空白符号
     p2 = re.compile('>\s+<')
     content_html = re.sub(p2, '><', content_html)
-    # TODO: 代码标签统一处理
-    # 把img标签里面的懒加载的data-src，换成src
-    content_selector = Selector(text=item['content_html'])
-    data_src = content_selector.xpath('//img[1]/@data-src').extract()
-    data_original = content_selector.xpath('//img[1]/@data-original').extract()
-    src = content_selector.xpath('//img[1]/@src').extract()
-    if (data_original and src) or (data_src and src):
-        content_html = content_html.replace(' src=', ' src2=')
-    for lazy_src in img_lazy_src:
-        content_html = content_html.replace(' ' + lazy_src + '=', ' data-src=')
-    # 清除HTML多余的style scripts comments
-    soup = BeautifulSoup(content_html, 'lxml')
-    content_html = _remove_all_attrs_except_saving(soup)
-    content_html = str(content_html)  # 把soup对象转为str
+    # TODO 清洗广告
+
+    # 清除HTML中tag多余的属性，保留一些必须的属性
+    content_html = _remove_all_attrs_except_some(content_html)
     # 赋值
     item['content_html'] = content_html
     return item
 
 
-def clean_ads(item):
-    '''
-    清洗广告
-    '''
-    # TODO 清洗广告
-    return item
-
-
-# remove all attributes
-def _remove_all_attrs(soup):
-    for tag in soup.find_all(True):
-        tag.attrs = {}
-    return soup
-
-
-# remove all attributes except some tags
-def _remove_all_attrs_except(soup):
-    whitelist = ['a', 'img']
-    for tag in soup.find_all(True):
-        if tag.name not in whitelist:
-            tag.attrs = {}
-    return soup
-
-
 # tag -> attr
 extra_tag_attr = {
     'a': {
-        'target': '_blank'
+        'target': '_blank',
+        'rel': 'nofollow'
     },
     'img': {
         'class': 'lazyload'
@@ -92,19 +38,36 @@ extra_tag_attr = {
 }
 
 
-# remove all attributes except some tags(only saving ['href','src'] attr)
-def _remove_all_attrs_except_saving(soup):
-    whitelist = ['a', 'img']
+# remove all attributes except some tags(only delete attrs in attrs_blacklist)
+def _remove_all_attrs_except_some(content_html):
+    soup = BeautifulSoup(content_html, 'lxml')
+    tags_whitelist = ['a', 'img']
+    attrs_blacklist = ['style', 'class', 'id', 'height', 'width']
     for tag in soup.find_all(True):
-        if tag.name not in whitelist:
+        # 清除属性
+        if tag.name not in tags_whitelist:
             tag.attrs = {}
         else:
             attrs = dict(tag.attrs)
             for attr in attrs:
-                if attr in ['style', 'class', 'id']:
+                if attr in attrs_blacklist:
                     del tag.attrs[attr]
-                if tag.name in extra_tag_attr:
-                    target_tag = extra_tag_attr.get(tag.name)
-                    for i in target_tag:
-                        tag.attrs[i] = target_tag.get(i)
-    return soup
+        # 额外添加属性
+        if tag.name in extra_tag_attr:
+            target_tag = extra_tag_attr.get(tag.name)
+            for i in target_tag:
+                tag.attrs[i] = target_tag.get(i)
+
+        # 处理 img 标签的懒加载属性：
+        if tag.name == 'img':
+            attrs = dict(tag.attrs)
+            if 'data-original' in attrs and 'src' in attrs:
+                tag.attrs['data-src'] = tag.attrs['data-original']
+                del tag.attrs['src']
+            if 'data-original-src' in attrs and 'src' in attrs:
+                tag.attrs['data-src'] = tag.attrs['data-original-src']
+                del tag.attrs['src']
+
+        # 把soup对象转为str
+        content_html = str(soup)
+    return content_html
