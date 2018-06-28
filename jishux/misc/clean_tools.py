@@ -37,6 +37,8 @@ extra_tag_attr = {
     },
 }
 
+common_lazyload_src = ['data-original-src', 'data-original']
+
 
 # remove all attributes except some tags(only delete attrs in attrs_blacklist)
 def _remove_all_attrs_except_some(content_html):
@@ -61,13 +63,11 @@ def _remove_all_attrs_except_some(content_html):
         # 处理 img 标签的懒加载属性：
         if tag.name == 'img':
             attrs = dict(tag.attrs)
-            if 'data-original' in attrs and 'src' in attrs:
-                tag.attrs['data-src'] = tag.attrs['data-original']
-                del tag.attrs['src']
-            if 'data-original-src' in attrs and 'src' in attrs:
-                tag.attrs['data-src'] = tag.attrs['data-original-src']
-                del tag.attrs['src']
-
+            for src in common_lazyload_src:
+                if src in attrs:
+                    tag.attrs['data-src'] = tag.attrs[src]
+                    if 'src' in attrs:
+                        del tag.attrs['src']
         # 把soup对象转为str
         content_html = str(soup)
     return content_html
