@@ -82,7 +82,7 @@ class CommonSpider(scrapy.Spider):
             request.meta['conf'] = conf
             yield request
 
-        if 'first' not in start_urls_config or start_urls_config['page_all']:
+        if start_urls_config.get('page_all'):
             # 翻页
             request = next_page(callback=self.parse, response=response, conf=conf, first_url=first_url,
                                 latest_url=latest_url, post_type=post_type)
