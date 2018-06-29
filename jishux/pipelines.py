@@ -249,7 +249,7 @@ class JishuxPostArticle(object):
         }
         qiniu_urls = item.get('qiniu_urls')
         if qiniu_urls:
-            form['img_keys'] = [x.replace(image_domain, '').replace(suffix, '') for x in qiniu_urls]
+            form['img_keys'] = '|'.join([x.replace(image_domain, '').replace(suffix, '') for x in qiniu_urls])
         r = requests.post('http://127.0.0.1/api/post/transport', data=form,
                           headers={'auth': data_transport_token})
         if r.status_code != 200:
