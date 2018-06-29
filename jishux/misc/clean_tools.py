@@ -68,6 +68,8 @@ def _remove_all_attrs_except_some(content_html):
                     tag.attrs['data-src'] = tag.attrs[src]
                     if 'src' in attrs:
                         del tag.attrs['src']
+            if 'src' in attrs:
+                tag.attrs['data-src'] = tag.attrs['src']
         # 把soup对象转为str
         content_html = str(soup)
     return content_html
