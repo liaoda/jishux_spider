@@ -215,7 +215,7 @@ class JishuxPostArticle(object):
     def __init__(self) -> None:
         super().__init__()
         self.post_urls = []
-        self.page_all = 'page_all' in start_urls_config and start_urls_config['page_all']
+        self.page_all = start_urls_config.get('page_all')
         f = open('jishux/misc/user_ids.txt', 'r+')
         self.ids = [x.replace('\n', '') for x in f.readlines()]
         f.close()
