@@ -16,7 +16,7 @@ from scrapy.utils.request import referer_str
 import jishux.settings as settings
 from jishux.misc.baidu_push_urls_tools import baidu_push_urls
 from jishux.misc.mail_tools import sendmail
-from jishux.misc.qiniu_tools import upload_file as qiniu_upload
+from jishux.misc.qiniu_tools import upload_file as qiniu_upload, image_domain, suffix
 from .misc.clean_tools import clean_tags
 from .misc.utils import get_post_type_id
 from scrapy.utils.python import to_bytes
@@ -221,42 +221,51 @@ class JishuxPostArticle(object):
         f.close()
 
     def process_item(self, item, spider):
-        if item:
-            description = item['description']
-            description = html.escape(description)
-            content = item['content_html']
-            title = item['post_title']
-            title = html.escape(title)
-            source = item['cn_name']
-            author = '技术栈' if not item['author'] else item['author']
-
-            form = {
-                'keywords': item['keywords'],
-                'description': description,
-                'content': content,
-                'title': title,
-                'source': source,
-                'type_id': get_post_type_id(item['post_type']),
-                'author': author,
-                'user_id': random.choice(self.ids),
-                'origin_url': item.get('_id'),
-                'click': 0
-            }
-            r = requests.post('http://127.0.0.1/api/post/transport', data=form,
-                              headers={'auth': data_transport_token})
-            if r.status_code != 200:
-                logging.log(logging.ERROR, '文章提交失败')
-            else:
-                print("url= " + r.text)
-                self.post_urls.append(r.text)
-
-    def close_spider(self, spider):
-        if start_urls_config.get('debug'):
+        if not item:
             return
-        stats = spider.crawler.stats.get_stats()
-        stats_msg = str(stats).replace('{', '{\n    ').replace(', \'', ', \n    \'').replace('}', '\n}')
-        push_msg = baidu_push_urls(urls=self.post_urls) if not self.page_all else ''
-        msg = '全量爬取' if self.page_all else '增量爬取'
-        msg += '：本次爬取文章数: {}篇\n{}\n{}'.format(len(self.post_urls), push_msg, stats_msg)
-        sendmail(subject='爬取{}篇'.format(len(self.post_urls)), message=msg, file_path='/var/log/scrapy.log')
-        # 更新统计数据包括：当日更新文档数量，文章总数量，评论总数量
+        if start_urls_config.get('debug'):
+            print(item)
+            return
+
+        description = item['description']
+        description = html.escape(description)
+        content = item['content_html']
+        title = item['post_title']
+        title = html.escape(title)
+        source = item['cn_name']
+        author = '技术栈' if not item['author'] else item['author']
+
+        form = {
+            'keywords': item['keywords'],
+            'description': description,
+            'content': content,
+            'title': title,
+            'source': source,
+            'type_id': get_post_type_id(item['post_type']),
+            'author': author,
+            'user_id': random.choice(self.ids),
+            'origin_url': item.get('_id'),
+            'click': 0
+        }
+        qiniu_urls = item.get('qiniu_urls')
+        if qiniu_urls:
+            form['img_keys'] = [x.replace(image_domain, '').replace(suffix, '') for x in qiniu_urls]
+        r = requests.post('http://127.0.0.1/api/post/transport', data=form,
+                          headers={'auth': data_transport_token})
+        if r.status_code != 200:
+            logging.log(logging.ERROR, '文章提交失败')
+        else:
+            print("url= " + r.text)
+            self.post_urls.append(r.text)
+
+
+def close_spider(self, spider):
+    if start_urls_config.get('debug'):
+        return
+    stats = spider.crawler.stats.get_stats()
+    stats_msg = str(stats).replace('{', '{\n    ').replace(', \'', ', \n    \'').replace('}', '\n}')
+    push_msg = baidu_push_urls(urls=self.post_urls) if not self.page_all else ''
+    msg = '全量爬取' if self.page_all else '增量爬取'
+    msg += '：本次爬取文章数: {}篇\n{}\n{}'.format(len(self.post_urls), push_msg, stats_msg)
+    sendmail(subject='爬取{}篇'.format(len(self.post_urls)), message=msg, file_path='/var/log/scrapy.log')
+    # 更新统计数据包括：当日更新文档数量，文章总数量，评论总数量

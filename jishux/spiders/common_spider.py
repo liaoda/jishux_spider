@@ -113,4 +113,4 @@ class CommonSpider(scrapy.Spider):
         item['crawl_time'] = crawl_time if crawl_time else int(time.time())
         item['cn_name'] = conf['cn_name']
         item['author'] = ''  # todo 文章作者 配置文件需要适配
-        yield item if not start_urls_config.get('debug') else print(item)
+        yield item

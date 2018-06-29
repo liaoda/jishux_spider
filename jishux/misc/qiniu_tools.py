@@ -12,19 +12,20 @@ image_domain = qiniu_config['image_domain']
 suffix = qiniu_config['suffix']
 q = Auth(access_key, secret_key)
 bucket = BucketManager(q)
+policy = {
+    'callbackUrl': 'http://deploy.jishux.com/qiniu_spider_callback',
+    'callbackBody': 'key=$(key)&hash=$(etag)&w=$(imageInfo.width)&h=$(imageInfo.height)&ave=$(imageAve)&fsize=$(fsize)',
+    'fsizeMin': 1024 * 2,
+    'fsizeLimit': 1024 * 1024 * 4,
+    'mimeLimit': 'image/*',
+    'returnBody': '{"key": $(key), "hash": $(etag), "w": $(imageInfo.width), "h": $(imageInfo.height)}'
+}
 
 
 def upload_file(file_path, file_name):
-    # print(file_path)
-    # print(file_name)
-    # date = time.strftime('%Y/%m/%d/', time.localtime(time.time()))
-    # file_name = 'jishux/' + date + file_name
-
-    token = q.upload_token(bucket_name, file_name, 3600)
+    token = q.upload_token(bucket_name, file_name, 3600, policy)
     ret, info = put_file(token, file_name, file_path)
-    assert ret['key'] == file_name
-    assert ret['hash'] == etag(file_path)
-    # os.remove(file_path)
+    assert ret['state']
     return image_domain + file_name + suffix
 
 
