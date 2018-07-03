@@ -251,7 +251,9 @@ class JishuxPostArticle(object):
         if qiniu_urls:
             form['img_keys'] = '|'.join([x.replace(image_domain, '').replace(suffix, '') for x in qiniu_urls])
         r = requests.post('http://127.0.0.1/api/post/transport', data=form,
-                          headers={'auth': data_transport_token})
+                          headers={
+                              "User-Agent": "jishux_spider",
+                              'auth': data_transport_token})
         if r.status_code != 200:
             logging.log(logging.ERROR, '文章提交失败')
         else:

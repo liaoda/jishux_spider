@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Created by yaochao on 2017/8/7
 import logging
-import re
 import time
 
 import scrapy
@@ -13,7 +12,6 @@ from jishux.misc.readability_tools import get_summary
 from jishux.misc.request_tools import next_page
 from jishux.misc.sqlite_tools import get_then_change_latest_url
 from jishux.misc.text_tools import get_description, get_keywords
-from jishux.misc.time_formater import generate_timestamp
 from jishux.misc.utils import get_conf, get_cookies, get_start_urls, md5
 from jishux.misc.all_secret_set import start_urls_config
 
