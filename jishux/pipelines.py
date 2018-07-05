@@ -10,6 +10,7 @@ from urllib.parse import urljoin, urlparse
 
 import requests
 from scrapy import Selector, Request
+from scrapy.exceptions import DropItem
 from scrapy.pipelines.images import FilesPipeline, FileException
 from scrapy.utils.request import referer_str
 
@@ -24,7 +25,6 @@ from jishux.misc.all_secret_set import start_urls_config, data_transport_token
 import hashlib
 import os
 import html
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +56,8 @@ class JishuxDataCleaningPipeline(object):
 
     def process_item(self, item, spider):
         item = clean_tags(item)
+        if not item:
+            raise DropItem("Missing content in item")
         return item
 
 

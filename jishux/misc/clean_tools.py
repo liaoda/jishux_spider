@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Created by yaochao on 2017/8/29
 import re
-from scrapy import Selector
 from bs4 import BeautifulSoup
 
 
@@ -18,6 +17,8 @@ def clean_tags(item):
 
     # 清除HTML中tag多余的属性，保留一些必须的属性
     content_html = _remove_all_attrs_except_some(content_html)
+    if not content_html:
+        return None
     # 赋值
     item['content_html'] = content_html
     return item
@@ -72,4 +73,4 @@ def _remove_all_attrs_except_some(content_html):
                 tag.attrs['data-src'] = tag.attrs['src']
         # 把soup对象转为str
         content_html = str(soup)
-    return content_html
+    return content_html if len(content_html) > 100 else ''
