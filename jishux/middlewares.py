@@ -9,6 +9,7 @@
 from scrapy import signals
 import user_agent
 from .proxy_pool import q
+from logging import log, DEBUG
 
 
 class JishuxSpiderMiddleware(object):
@@ -39,8 +40,8 @@ class JishuxSpiderMiddleware(object):
             yield i
 
     def process_spider_exception(self, response, exception, spider):
-        print('触发 exception')
-        print(exception)
+        # print('触发 exception')
+        # print(exception)
         # Called when a spider or process_spider_input() method
         # (from other spider middleware) raises an exception.
 
@@ -80,10 +81,8 @@ class JishuxDownloaderMiddleware(object):
                 #     request.meta['proxy'] = "http://%s" % proxy_res.text
                 proxy_ip = q.get()
                 if proxy_ip:
-                    print('use proxy: ', proxy_ip)
+                    log(DEBUG, 'use proxy: ' + proxy_ip)
                     request.meta['proxy'] = "http://%s" % proxy_ip
 
-    def process_response(self, request, response, spider):
-        print('status: ', response.status)
-        print('retry_times: ', request.meta.get('retry_times', 0))
-        return response
+    # def process_response(self, request, response, spider):
+    #     return response
