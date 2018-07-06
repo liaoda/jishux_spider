@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'jishux.spiders'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
-DOWNLOAD_TIMEOUT = 30
+DOWNLOAD_TIMEOUT = 10
 
 # retry settings for scrapy.downloadermiddlewares.retry.RetryMiddleware
 RETRY_ENABLED = True

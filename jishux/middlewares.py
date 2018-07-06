@@ -77,13 +77,7 @@ class JishuxDownloaderMiddleware(object):
             print('use proxy: ', proxy_res.text)
             request.meta['proxy'] = "http://%s" % proxy_res.text
 
-        # if 'Accept' in request.headers:
-        # accept = request.headers['Accept'].decode('utf-8')
-        # if accept and accept.find('text/html') != -1:
-        #     setProxyAuth(request)
-        # else:
-        #     print("jishux_header:", request.headers)
-
     def process_response(self, request, response, spider):
         print('status: ', response.status)
+        print('retry_times: ', request.meta.get('retry_times', 0))
         return response
