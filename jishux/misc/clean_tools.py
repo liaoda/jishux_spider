@@ -38,7 +38,7 @@ extra_tag_attr = {
     },
 }
 
-common_lazyload_src = ['data-original-src', 'data-original']
+common_lazyload_src = ['data-original-src', 'data-original', 'data-src']
 
 
 # remove all attributes except some tags(only delete attrs in attrs_blacklist)
