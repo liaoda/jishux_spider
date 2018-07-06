@@ -262,14 +262,13 @@ class JishuxPostArticle(object):
             print("url= " + r.text)
             self.post_urls.append(r.text)
 
-
-def close_spider(self, spider):
-    if start_urls_config.get('debug'):
-        return
-    stats = spider.crawler.stats.get_stats()
-    stats_msg = str(stats).replace('{', '{\n    ').replace(', \'', ', \n    \'').replace('}', '\n}')
-    push_msg = baidu_push_urls(urls=self.post_urls) if not self.page_all else ''
-    msg = '全量爬取' if self.page_all else '增量爬取'
-    msg += '：本次爬取文章数: {}篇\n{}\n{}'.format(len(self.post_urls), push_msg, stats_msg)
-    sendmail(subject='爬取{}篇'.format(len(self.post_urls)), message=msg, file_path='/var/log/scrapy.log')
-    # 更新统计数据包括：当日更新文档数量，文章总数量，评论总数量
+    def close_spider(self, spider):
+        if start_urls_config.get('debug'):
+            return
+        stats = spider.crawler.stats.get_stats()
+        stats_msg = str(stats).replace('{', '{\n    ').replace(', \'', ', \n    \'').replace('}', '\n}')
+        push_msg = baidu_push_urls(urls=self.post_urls) if not self.page_all else ''
+        msg = '全量爬取' if self.page_all else '增量爬取'
+        msg += '：本次爬取文章数: {}篇\n{}\n{}'.format(len(self.post_urls), push_msg, stats_msg)
+        sendmail(subject='爬取{}篇'.format(len(self.post_urls)), message=msg, file_path='/var/log/scrapy.log')
+        # 更新统计数据包括：当日更新文档数量，文章总数量，评论总数量

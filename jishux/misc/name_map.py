@@ -197,6 +197,7 @@ common_map = {
     'https://segmentfault.com/': {
         'url': segmentfault_urls,
         'cn_name': 'segmentfault',
+        'post_content_xpath': "//*[contains(@class,'main')]/div[contains(@class,'article__content')]",
         'posts_xpath': '//div[@id="blog"]/section',
         'post_url_xpath': 'div[@class="summary"]/h2/a/@href',
         'post_title_xpath': 'div[@class="summary"]/h2/a/text()',
