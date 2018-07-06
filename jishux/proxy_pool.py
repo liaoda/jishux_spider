@@ -11,11 +11,10 @@ q = Queue()
 
 class ProxyPool(Thread):
 
-    def __init__(self, threshold=ProxySetting.threshold, request_number=ProxySetting.request_number,
+    def __init__(self, threshold=ProxySetting.threshold,
                  retry=ProxySetting.retry, daemon=ProxySetting.daemon) -> None:
         super().__init__(name='proxy', daemon=daemon)
         self.threshold = threshold
-        self.request_number = request_number
         self.retry = retry
 
     def start(self) -> None:
@@ -27,7 +26,7 @@ class ProxyPool(Thread):
 
     # 请求网络获取代理ip
     def get_proxies(self, retry=0):
-        r = requests.get(ProxySetting.proxy_url % self.request_number,
+        r = requests.get(ProxySetting.proxy_url,
                          headers={
                              "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) "
                                            "Chrome/60.0.3112.90 Safari/537.36",
