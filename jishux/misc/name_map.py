@@ -132,7 +132,7 @@ common_map = {
         },
     },
 
-    'http://www.jianshu.com/': {
+    'https://www.jianshu.com/': {
         'url': jianshu_urls,
         'cn_name': '简书',
         'posts_xpath': '//*[contains(@id,"note")]',

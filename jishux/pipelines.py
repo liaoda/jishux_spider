@@ -178,6 +178,7 @@ class JISHUXFilePipeline(FilesPipeline):
                         original_url = request_url[6:]
                     elif request_url.startswith('http'):
                         original_url = request_url[5:]
+                    logger.debug('original_url: ' + original_url)
                     if original_url in item['content_html']:
                         item['content_html'] = item['content_html'].replace(original_url, qiniu_url)
                         continue
