@@ -38,6 +38,8 @@ class CommonSpider(scrapy.Spider):
         for url in self.start_urls:
             request = scrapy.Request(url=url, callback=self.parse, dont_filter=True)
             request.meta['request_url'] = url
+            conf = get_conf(url=url)
+            request.meta['use_proxy'] = conf and 'use_proxy' in conf
             yield request
 
     def parse(self, response):
@@ -78,6 +80,7 @@ class CommonSpider(scrapy.Spider):
                                              'headers'].keys() else None))
             request.meta['item'] = item
             request.meta['conf'] = conf
+            request.meta['use_proxy'] = 'use_proxy' in conf
             yield request
 
         if start_urls_config.get('page_all'):
@@ -85,6 +88,7 @@ class CommonSpider(scrapy.Spider):
             request = next_page(callback=self.parse, response=response, conf=conf, first_url=first_url,
                                 latest_url=latest_url, post_type=post_type)
             if request:
+                request.meta['use_proxy'] = 'use_proxy' in conf
                 yield request
 
     def parse_post(self, response):

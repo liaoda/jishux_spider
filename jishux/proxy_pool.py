@@ -11,8 +11,8 @@ q = Queue()
 
 class ProxyPool(Thread):
 
-    def __init__(self, threshold=ProxySetting.threshold,
-                 retry=ProxySetting.retry, daemon=ProxySetting.daemon) -> None:
+    def __init__(self, threshold=ProxySetting.threshold or 100,
+                 retry=ProxySetting.retry or 3, daemon=ProxySetting.daemon) -> None:
         super().__init__(name='proxy', daemon=daemon)
         self.threshold = threshold
         self.retry = retry
@@ -51,7 +51,8 @@ class ProxyPool(Thread):
             time.sleep(2)
 
 
-proxy_pool = ProxyPool()
-proxy_pool.start()
-if not ProxySetting.daemon:
-    proxy_pool.join()
+if ProxySetting and ProxySetting.proxy_url:
+    proxy_pool = ProxyPool()
+    proxy_pool.start()
+    if not ProxySetting.daemon:
+        proxy_pool.join()

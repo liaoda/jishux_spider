@@ -70,19 +70,8 @@ class JishuxDownloaderMiddleware(object):
     def process_request(self, request, spider):
         ua = user_agent.generate_user_agent(device_type='desktop')
         request.headers['User-Agent'] = ua
-        if 'Accept' in request.headers:
-            accept = request.headers['Accept'].decode('utf-8')
-            if accept and accept.find('text/html') != -1:
-                # proxy_res = requests.get(ProxySetting.get, headers={
-                #     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36",
-                # })
-                # if proxy_res.status_code == 200:
-                #     print('use proxy: ', proxy_res.text)
-                #     request.meta['proxy'] = "http://%s" % proxy_res.text
-                proxy_ip = q.get()
-                if proxy_ip:
-                    log(DEBUG, 'use proxy: ' + proxy_ip)
-                    request.meta['proxy'] = "http://%s" % proxy_ip
-
-    # def process_response(self, request, response, spider):
-    #     return response
+        if request.meta and request.meta.get('use_proxy'):
+            proxy_ip = q.get()
+            if proxy_ip:
+                log(DEBUG, 'use proxy: ' + proxy_ip)
+                request.meta['proxy'] = "http://%s" % proxy_ip

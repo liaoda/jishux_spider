@@ -164,11 +164,9 @@ class JISHUXFilePipeline(FilesPipeline):
                 qiniu_url = x[1]['qiniu_url'] if 'qiniu_url' in x[1].keys() else None
                 if qiniu_url:
                     qiniu_urls.append(qiniu_url)
-                    # 文章封面图 litpic
-                    if not item['litpic']:
-                        item['litpic'] = qiniu_url
-
                     request_url = x[1]['url']
+                    logger.debug('request_url: ' + request_url)
+                    logger.debug('qiniu_url: ' + qiniu_url)
                     relative_path = urlparse(request_url).path
                     # 替换1：完全正常的
                     original_url = request_url
@@ -178,7 +176,7 @@ class JISHUXFilePipeline(FilesPipeline):
                     # 替换7：没有http:或者https:协议的
                     if request_url.startswith('https'):
                         original_url = request_url[6:]
-                    else:
+                    elif request_url.startswith('http'):
                         original_url = request_url[5:]
                     if original_url in item['content_html']:
                         item['content_html'] = item['content_html'].replace(original_url, qiniu_url)

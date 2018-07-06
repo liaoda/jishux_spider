@@ -205,6 +205,7 @@ common_map = {
             'type': 'CLICK_NEXT_BUTTON',
             'xpath': '//a[text()="下一页"]/@href',
         },
+        'use_proxy': True
     },
 
     'http://www.56cto.com/': {
