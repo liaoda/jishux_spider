@@ -146,27 +146,28 @@ common_map = {
             "If-None-Match": "W/\"baebc4bb3d3c66947d8cbdedf66a8726\"",
         }
     },
-    'http://lib.csdn.net/': {
-        'url': {
-            'http://lib.csdn.net/android/node/188': 'mobile',
-            'http://lib.csdn.net/react/node/408': 'frontend',
-            'http://lib.csdn.net/ai/node/762': 'ai',
-            'http://lib.csdn.net/aiplanning/node/845': 'ai',
-            'http://lib.csdn.net/javaee/node/174': 'backend',
-            'http://lib.csdn.net/java/node/102': 'backend',
-            'http://lib.csdn.net/javase/node/92': 'mobile',
-            'http://lib.csdn.net/objective-c/node/744': 'mobile',
-            'http://lib.csdn.net/knowledgeengineering/node/842': 'other',
-        },
-        'cn_name': 'CSDN',
-        'posts_xpath': '//li[contains(@class,"clearfix")]',
-        'post_url_xpath': 'div[@class="scontentright"]/p/a/@href',
-        'post_title_xpath': 'div[@class="scontentright"]/p/a/text()',
-        'next_page': {
-            'type': 'CLICK_NEXT_BUTTON',
-            'xpath': '//a[@class="btn btn-xs btn-default btn-next"]/@href',
-        },
-    },
+    # 'http://lib.csdn.net/': {
+    #     'url': {
+    #         'http://lib.csdn.net/android/node/188': 'mobile',
+    #         'http://lib.csdn.net/react/node/408': 'frontend',
+    #         'http://lib.csdn.net/ai/node/762': 'ai',
+    #         'http://lib.csdn.net/aiplanning/node/845': 'ai',
+    #         'http://lib.csdn.net/javaee/node/174': 'backend',
+    #         'http://lib.csdn.net/java/node/102': 'backend',
+    #         'http://lib.csdn.net/javase/node/92': 'mobile',
+    #         'http://lib.csdn.net/objective-c/node/744': 'mobile',
+    #         'http://lib.csdn.net/knowledgeengineering/node/842': 'other',
+    #     },
+    #     'cn_name': 'CSDN',
+    #     'posts_xpath': '//li[contains(@class,"clearfix")]',
+    #     'post_url_xpath': 'div[@class="scontentright"]/p/a/@href',
+    #     'post_title_xpath': 'div[@class="scontentright"]/p/a/text()',
+    #     'next_page': {
+    #         'type': 'CLICK_NEXT_BUTTON',
+    #         'xpath': '//a[@class="btn btn-xs btn-default btn-next"]/@href',
+    #     },
+    #     'use_proxy': True
+    # },
 
     'http://www.ailab.cn/': {
         'url': {
@@ -182,17 +183,17 @@ common_map = {
         },
     },
 
-    'http://blog.csdn.net/': {
-        'url': csdn_urls,
-        'cn_name': 'csdn',
-        'posts_xpath': '//div[@class="list_item article_item"]',
-        'post_url_xpath': 'div[@class="article_title"]/h1/span/a/@href',
-        'post_title_xpath': 'div[@class="article_title"]/h1/span/a/text()',
-        'next_page': {
-            'type': 'CLICK_NEXT_BUTTON',
-            'xpath': '//a[text()="下一页"]/@href',
-        },
-    },
+    # 'http://blog.csdn.net/': {
+    #     'url': csdn_urls,
+    #     'cn_name': 'csdn',
+    #     'posts_xpath': '//div[@class="list_item article_item"]',
+    #     'post_url_xpath': 'div[@class="article_title"]/h1/span/a/@href',
+    #     'post_title_xpath': 'div[@class="article_title"]/h1/span/a/text()',
+    #     'next_page': {
+    #         'type': 'CLICK_NEXT_BUTTON',
+    #         'xpath': '//a[text()="下一页"]/@href',
+    #     },
+    # },
 
     'https://segmentfault.com/': {
         'url': segmentfault_urls,
