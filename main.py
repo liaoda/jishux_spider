@@ -12,8 +12,8 @@ process = CrawlerProcess(get_project_settings())
 # for spider in process.spider_loader.list():
 #     process.crawl(spider)
 waiting = 0
-while waiting < 20:
-    if q.qsize() > 0:
+while True:
+    if q.qsize() > 0 or waiting > 20:
         # 执行指定的spider
         process.crawl('common_spider')
         process.start()
