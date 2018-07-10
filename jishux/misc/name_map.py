@@ -478,6 +478,22 @@ common_map = {
             'xpath': '//*[@class="next-page"]/a/@href',
         },
     },
+    'https://timeline-merger-ms.juejin.im/': {
+        'url': {
+            'https://timeline-merger-ms.juejin.im/v1/get_entry_by_rank?src=web&limit=20&category=5562b410e4b00c57d9b94a92': 'mobile',
+            'https://timeline-merger-ms.juejin.im/v1/get_entry_by_rank?src=web&limit=20&category=5562b419e4b00c57d9b94ae2': 'backend',
+            'https://timeline-merger-ms.juejin.im/v1/get_entry_by_rank?src=web&limit=20&category=5562b415e4b00c57d9b94ac8': 'frontend',
+            'https://timeline-merger-ms.juejin.im/v1/get_entry_by_rank?src=web&limit=20&category=57be7c18128fe1005fa902de': 'ai',
+            'https://timeline-merger-ms.juejin.im/v1/get_entry_by_rank?src=web&limit=20&category=5562b405e4b00c57d9b94a41': 'mobile',
+            'https://timeline-merger-ms.juejin.im/v1/get_entry_by_rank?src=web&limit=20&category=5b34a478e1382338991dd3c1': 'db',
+        },
+        'cn_name': '掘金',
+        'json': True,
+        'posts_path': 'd.entrylist',
+        'post_title_path': 'title',
+        'post_url_path': 'originalUrl'
+
+    }
 
     # 'https://www.ibm.com/': {
     #     'url': {

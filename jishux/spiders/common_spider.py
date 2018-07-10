@@ -3,7 +3,7 @@
 # Created by yaochao on 2017/8/7
 import logging
 import time
-
+import json
 import scrapy
 from scrapy import Selector
 
@@ -39,6 +39,7 @@ class CommonSpider(scrapy.Spider):
             request = scrapy.Request(url=url, callback=self.parse, dont_filter=True)
             request.meta['request_url'] = url
             conf = get_conf(url=url)
+            request.meta['json'] = conf.get('json') or False
             request.meta['use_proxy'] = conf and 'use_proxy' in conf
             yield request
 
@@ -52,11 +53,14 @@ class CommonSpider(scrapy.Spider):
         conf = response.meta['conf'] if response.meta and 'conf' in response.meta.keys() else get_conf(url=request_url)
         post_type = response.meta['post_type'] if response.meta and 'post_type' in response.meta.keys() else \
             conf['url'][request_url]
-        posts = response.xpath(conf['posts_xpath'])
+        is_json_request = response.meta['json']
+        posts = self.extract_posts_list(is_json_request, response, conf)
         for post in posts:
-            post_url = post.xpath(conf['post_url_xpath']).extract_first()
+            post_url = post.xpath(conf['post_url_xpath']).extract_first() if not is_json_request else post.get(
+                conf['post_url_path'])
             post_url = response.urljoin(post_url)
-            post_title = post.xpath(conf['post_title_xpath']).extract_first()
+            post_title = post.xpath(conf['post_title_xpath']).extract_first() if not is_json_request else post.get(
+                conf['post_title_path'])
             post_title = post_title.strip().replace('\r', '').replace('\n', '').replace('\t', '')
             item = {
                 '_id': post_url,
@@ -64,7 +68,6 @@ class CommonSpider(scrapy.Spider):
                 'post_title': post_title,
                 'post_type': post_type
             }
-
             # 把第一条数据作为最新的数据，存储到sqlite中
             if not first_url:
                 first_url = post_url
@@ -83,7 +86,7 @@ class CommonSpider(scrapy.Spider):
             request.meta['use_proxy'] = 'use_proxy' in conf
             yield request
 
-        if start_urls_config.get('page_all'):
+        if start_urls_config.get('page_all') and not is_json_request:
             # 翻页
             request = next_page(callback=self.parse, response=response, conf=conf, first_url=first_url,
                                 latest_url=latest_url, post_type=post_type)
@@ -116,3 +119,20 @@ class CommonSpider(scrapy.Spider):
         item['cn_name'] = conf['cn_name']
         item['author'] = ''  # todo 文章作者 配置文件需要适配
         yield item
+
+    def extract_posts_list(self, is_json_request, response, conf):
+
+        if not is_json_request:
+            return response.xpath(conf['posts_xpath'])
+        posts_json_path = conf.get('posts_path')
+        j_obj = json.loads(response.text)
+        return self.extract_json_list(j_obj, posts_json_path.split('.'))
+
+    def extract_json_list(self, j_obj, paths, idx=0):
+        if idx == len(paths):
+            return j_obj
+        path = paths[idx]
+        if path not in j_obj:
+            return
+        idx += 1
+        return self.extract_json_list(j_obj.get(path), paths, idx)
