@@ -491,7 +491,8 @@ common_map = {
         'json': True,
         'posts_path': 'd.entrylist',
         'post_title_path': 'title',
-        'post_url_path': 'originalUrl'
+        'post_url_path': 'originalUrl',
+        'post_content_xpath': '//div[@class="article-content"] | //div[@class="rich_media_content "]'
 
     }
 

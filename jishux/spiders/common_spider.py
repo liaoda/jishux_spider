@@ -55,6 +55,8 @@ class CommonSpider(scrapy.Spider):
             conf['url'][request_url]
         is_json_request = response.meta['json']
         posts = self.extract_posts_list(is_json_request, response, conf)
+        if not posts:
+            return
         for post in posts:
             post_url = post.xpath(conf['post_url_xpath']).extract_first() if not is_json_request else post.get(
                 conf['post_url_path'])
